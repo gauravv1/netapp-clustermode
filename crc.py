@@ -7,7 +7,7 @@ import json
 filer_name = sys.argv[1]
 
 filer = NaServer(filer_name,1,6)
-filer.set_admin_user("admin","$wgdw1c!")
+filer.set_admin_user("admin","password123")
 cmd = NaElement("perf-object-get-instances")
 cmd1 = NaElement("net-port-get-iter")
 port = filer.invoke_elem(cmd1)
