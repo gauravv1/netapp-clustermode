@@ -11,7 +11,7 @@ s.set_server_type("FILER")
 s.set_transport_type("HTTPS")
 s.set_port(443)
 s.set_style("LOGIN")
-s.set_admin_user("admin", "$wgdw1c!")
+s.set_admin_user("admin", "password123")
 
 
 def cluster_info(s):
