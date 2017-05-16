@@ -11,7 +11,7 @@ s.set_server_type("FILER")
 s.set_transport_type("HTTPS")
 s.set_port(443)
 s.set_style("LOGIN")
-s.set_admin_user("admin", "password123")
+s.set_admin_user("admin", "$wgdw1c!")
 
 
 def cluster_info(s):
@@ -156,7 +156,85 @@ def vol(s):
                                 break
 
 
+def sensors(s):
+        api = NaElement("environment-sensors-get-iter")
+        api.child_add_string("max-records","1000")
+
+        xi = NaElement("query")
+        api.child_add(xi)
+
+        xi.child_add_string("environment-sensors-info","<environment-sensors-info>")
+
+        xo = s.invoke_elem(api)
+
+        obj = xmltodict.parse(xo.sprintf())
+        jd = json.dumps(obj)
+        jl = json.loads(jd)
+
+        print "Node             Sensor          Status"
+        print "======================================="
+        if xo.results_status() == "failed":
+                reason = xo.results_reason()
+                print ("Failure: %s" %reason)
+        else:
+
+
+                for h in jl["results"]["attributes-list"]["environment-sensors-info"]:
+
+                        if "Fan" in h["sensor-name"]:
+                                print h["node-name"],
+                                print h["sensor-name"],
+                                print h["threshold-sensor-state"]
+                        elif "PSU" in h["sensor-name"]:
+                                print h["node-name"],
+                                print h["sensor-name"],
+                                print h["threshold-sensor-state"]
+                        elif "Sysfan1" in h["sensor-name"]:
+                                print h["node-name"],
+                                print h["sensor-name"],
+                                print h["threshold-sensor-state"]
+                        elif "SP Status" in h["sensor-name"]:
+                                print h["node-name"],
+                                print h["sensor-name"],
+                                print h["threshold-sensor-state"]
+                        else:
+                                pass
+
+
+def failed_disk(s):
+        api = NaElement("storage-disk-get-iter")
+        api.child_add_string("max-records","1000")
+
+        xi = NaElement("query")
+        api.child_add(xi)
+
+        xi.child_add_string("storage-disk-info","<storage-disk-info>")
+
+        xo = s.invoke_elem(api)
+
+        obj = xmltodict.parse(xo.sprintf())
+        jd = json.dumps(obj)
+        jl = json.loads(jd)
+
+        print "Node             Disk"
+        print "====================="
+        if xo.results_status() == "failed":
+                reason = xo.results_reason()
+                print ("Failure: %s" %reason)
+        else:
+                for h in jl["results"]["attributes-list"]["storage-disk-info"]:
+                        if h["disk-ownership-info"]["is-failed"] == "true":
+                                print h["disk-ownership-info"]["home-node-name"],
+                                print h["disk-name"],
+                                print h["disk-ownership-info"]["is-failed"]
+                        else:
+                                pass
+
+
+
 cluster_info(s)
 alarm(s)
 aggr(s)
 vol(s)
+sensors(s)
+failed_disk(s)
